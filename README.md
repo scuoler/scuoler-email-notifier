@@ -40,7 +40,7 @@ At Scuoler, we are thoroughly passionate about innovative ideas and their implem
 
 ## Deployed Application
 
-https://scuoler.com/
+https://scuoler.com/scheduler
 
 ## MIT License
 
