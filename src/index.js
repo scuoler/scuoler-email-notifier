@@ -146,8 +146,7 @@ const main = () => {
           hoursOffset = hoursOffset * -1;
           minutesOffset = minutesOffset * -1;
         }
-        //console.log(nowStr, offset, isSubtract, hoursOffset, minutesOffset);
-        //console.log(start_time.constructor.name);
+        console.log(nowStr, offset, isSubtract, hoursOffset, minutesOffset);
         start_time.setHours(start_time.getHours() + hoursOffset);
         end_time.setHours(end_time.getHours() + hoursOffset);
         let dt_startDateTime_utc = new Date(
@@ -159,7 +158,12 @@ const main = () => {
 
         let str_start_time = convertDateToString(dt_startDateTime_utc);
         let str_end_time = convertDateToString(dt_endDateTime_utc);
-
+        console.log(
+          dt_startDateTime_utc,
+          dt_endDateTime_utc,
+          str_start_time,
+          str_end_time
+        );
         let htmlBody = makeEmailNotifyBody(
           recipients,
           description,
