@@ -117,7 +117,7 @@ const main = () => {
         let description = result.rows[i].description;
         let participant_email_ids = result.rows[i].participant_email_ids;
         let recipients = participant_email_ids.join(",");
-        let timezone = result.rows[i].timezone;
+        let timezone = Number(result.rows[i].timezone);
         let timezone_description = result.rows[i].timezone_description;
         let start_time = result.rows[i].start_time;
         let end_time = result.rows[i].end_time;
@@ -146,24 +146,36 @@ const main = () => {
           hoursOffset = hoursOffset * -1;
           minutesOffset = minutesOffset * -1;
         }
-        console.log(nowStr, offset, isSubtract, hoursOffset, minutesOffset);
-        start_time.setHours(start_time.getHours() + hoursOffset);
-        end_time.setHours(end_time.getHours() + hoursOffset);
-        let dt_startDateTime_utc = new Date(
-          start_time.getTime() + minutesOffset * 60000
-        );
-        let dt_endDateTime_utc = new Date(
-          end_time.getTime() + minutesOffset * 60000
-        );
+        //console.log(nowStr, offset, isSubtract, hoursOffset, minutesOffset);
+        /* The follow two statements converts start/end times 
+        to millis format (milliseconds past EPOC) */
+        let startTimeMillis = start_time.getTime();
+        let endTimeMillis = end_time.getTime();
+        /* The logic in following If  takes care of any implicit node conversion 
+        and converts the start/end time values to UTC */
+        if (hoursOffset > 0 || minutesOffset > 0) {
+          startTimeMillis += hoursOffset * 60 * 60 * 1000;
+          endTimeMillis += hoursOffset * 60 * 60 * 1000;
+          startTimeMillis += minutesOffset * 60 * 1000;
+          endTimeMillis += minutesOffset * 60 * 1000;
+        }
+        /* The logic in following If takes care of timezone offset for the user specified timezone
+        and converts the start/end time values to user specified */
+        if (timezone !== 0) {
+          startTimeMillis += timezone * 60 * 60 * 1000;
+          endTimeMillis += timezone * 60 * 60 * 1000;
+        }
+        let dt_startDateTime_utc = new Date(startTimeMillis);
+        let dt_endDateTime_utc = new Date(endTimeMillis);
 
         let str_start_time = convertDateToString(dt_startDateTime_utc);
         let str_end_time = convertDateToString(dt_endDateTime_utc);
-        console.log(
-          dt_startDateTime_utc,
-          dt_endDateTime_utc,
+        /*console.log(
+          dt_startDateTime_utc.toString(),
+          dt_endDateTime_utc.toString(),
           str_start_time,
           str_end_time
-        );
+        );*/
         let htmlBody = makeEmailNotifyBody(
           recipients,
           description,
