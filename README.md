@@ -1,4 +1,4 @@
-# Scuoler Event Notifier: An Event Invite and Notification System
+# Scuoler Event Notifier: An Event Scheduling System
 
 [![License: MIT](https://img.shields.io/github/license/mathewjoseph31/schools?style=plastic)](https://opensource.org/licenses/MIT)
 

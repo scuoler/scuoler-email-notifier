@@ -4,7 +4,6 @@ const cron = require("node-cron");
 const configuration = require("../Configuration");
 const utils = require("../utils/Utils");
 const constants = require("../Constants");
-const { convertDateToString } = utils;
 
 const sendEmailUsingAPI = async (
   api_url,
@@ -134,48 +133,30 @@ const main = () => {
           organiser_id,
           notify_before_minutes
         );
-        let nowStr = new Date().toString();
-        let offset = nowStr.substring(
-          nowStr.indexOf("GMT") + 3,
-          nowStr.indexOf("GMT") + 8
-        );
-        let isSubtract = offset.charAt(0) === "-";
-        let hoursOffset = Number(offset.substring(1, 3));
-        let minutesOffset = Number(offset.substring(3, 5));
-        if (isSubtract) {
-          hoursOffset = hoursOffset * -1;
-          minutesOffset = minutesOffset * -1;
-        }
-        //console.log(nowStr, offset, isSubtract, hoursOffset, minutesOffset);
-        /* The follow two statements converts start/end times 
-        to millis format (milliseconds past EPOC) */
-        let startTimeMillis = start_time.getTime();
-        let endTimeMillis = end_time.getTime();
-        /* The logic in following If  takes care of any implicit node conversion 
-        and converts the start/end time values to UTC */
-        if (hoursOffset > 0 || minutesOffset > 0) {
-          startTimeMillis += hoursOffset * 60 * 60 * 1000;
-          endTimeMillis += hoursOffset * 60 * 60 * 1000;
-          startTimeMillis += minutesOffset * 60 * 1000;
-          endTimeMillis += minutesOffset * 60 * 1000;
-        }
-        /* The logic in following If takes care of timezone offset for the user specified timezone
-        and converts the start/end time values to user specified */
-        if (timezone !== 0) {
-          startTimeMillis += timezone * 60 * 60 * 1000;
-          endTimeMillis += timezone * 60 * 60 * 1000;
-        }
-        let dt_startDateTime_utc = new Date(startTimeMillis);
-        let dt_endDateTime_utc = new Date(endTimeMillis);
 
-        let str_start_time = convertDateToString(dt_startDateTime_utc);
-        let str_end_time = convertDateToString(dt_endDateTime_utc);
-        /*console.log(
-          dt_startDateTime_utc.toString(),
-          dt_endDateTime_utc.toString(),
-          str_start_time,
-          str_end_time
-        );*/
+        /* The timezone offset needs to be taken to account for  
+        date time conversion to selected timezone format  for sending email */
+        let dt_startDateTime = utils.dateAddHours(start_time, timezone);
+        let dt_endDateTime = utils.dateAddHours(end_time, timezone);
+
+        let str_start_time = dt_startDateTime.toISOString();
+        /* Remove ".000z" and replace T with ' ' */
+        str_start_time = str_start_time
+          .substring(0, str_start_time.length - 5)
+          .replace("T", " ");
+
+        let str_end_time = dt_endDateTime.toISOString();
+        /* Remove ".000z" and replace T with ' ' */
+        str_end_time = str_end_time
+          .substring(0, str_end_time.length - 5)
+          .replace("T", " ");
+
+        // console.log(
+        //   dt_startDateTime.toString(),
+        //   dt_endDateTime.toString(),
+        //   str_start_time,
+        //   str_end_time
+        // );
         let htmlBody = makeEmailNotifyBody(
           recipients,
           description,

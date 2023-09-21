@@ -1,0 +1,1 @@
+pm2 start src/index.js --no-autorestart --name "scuoler event notifier" --cron "_/5 _ \* \* \*"
