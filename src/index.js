@@ -107,9 +107,10 @@ const main = () => {
   from public.meetings_to_notify_get();`;
 
   pool.query(sql, [], function (err, result, fields) {
-    pool.end(() => {});
-    if (err) next(err);
-    else {
+    if (err) {
+      console.log(err);
+      pool.end(() => {});
+    } else {
       for (let i = 0; i < result.rows.length; i++) {
         let id = result.rows[i].id;
         let meetingUrl = `https://scuoler.com/chat/${id}`;
@@ -172,7 +173,22 @@ const main = () => {
 
         sendEmailUsingAPI(API_URL, recipients, emailSubject, htmlBody, true)
           .then((res) => {
+            let sql1 = `
+            update meeting set notification_sent = true where id=$1;
+            `;
             console.log(res);
+            pool.query(sql1, [id], function (err, result, fields) {
+              pool.end(() => {});
+              if (err) {
+                console.log(err);
+              } else {
+                console.log({
+                  updatestatus: "ok",
+                  meetingId: id,
+                  updateDescription: `notification flag updated for meeting ${id}`,
+                });
+              }
+            });
           })
           .catch((err) => {
             console.log(err);
