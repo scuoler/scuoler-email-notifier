@@ -42,6 +42,16 @@ At Scuoler, we are thoroughly passionate about innovative ideas and their implem
 
 https://scuoler.com/scheduler
 
+## Sitemaps
+
+https://scuoler.com/coursesBrowse
+
+https://scuoler.com/problemsBrowse
+
+https://scuoler.com/mainSitemap.xml
+
+https://scuoler.com/courseSitemap.xml
+
 ## MIT License
 
 &copy;2023 Mathew Joseph
