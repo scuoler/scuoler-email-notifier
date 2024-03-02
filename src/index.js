@@ -91,7 +91,7 @@ const makeEmailNotifyBody = (
   return html;
 };
 
-const sendMeetingNotifications = () => {
+const sendMeetingNotifications = async () => {
   const pool = new pg.Pool({
     host: configuration.getHost(),
     user: configuration.getUserId(),
@@ -174,27 +174,34 @@ const sendMeetingNotifications = () => {
 
         sendEmailUsingAPI(API_URL, recipients, emailSubject, htmlBody, true)
           .then((res) => {
-            console.log(res);
+            console.log(res, id);
             meetingIdsNotified.push(id);
+            if (i === result.rows.length - 1) {
+              let sql1 = `
+              update public.meeting set notification_sent = true 
+              where id=ANY($1);
+              `;
+              pool.query(
+                sql1,
+                [meetingIdsNotified],
+                function (err, result, fields) {
+                  pool.end(() => {});
+                  if (err) {
+                    console.log(err);
+                  } else {
+                    console.log({
+                      updatestatus: "ok",
+                      updateDescription: `notification flag updated for meetings ${meetingIdsNotified}`,
+                    });
+                  }
+                }
+              );
+            }
           })
           .catch((err) => {
             console.log(err);
           });
       }
-      let sql1 = `
-            update meeting set notification_sent = true where id=ANY($1);
-            `;
-      pool.query(sql1, [meetingIdsNotified], function (err, result, fields) {
-        pool.end(() => {});
-        if (err) {
-          console.log(err);
-        } else {
-          console.log({
-            updatestatus: "ok",
-            updateDescription: `notification flag updated for meetings ${meetingIdsNotified}`,
-          });
-        }
-      });
     }
   });
 };
@@ -280,21 +287,23 @@ const sendMarketingEmails = () => {
         sendEmailUsingAPI(API_URL, email, "Hello From Scuoler", htmlBody, true)
           .then((res) => {
             sent_emails.push(email);
+            if (i === result.rows.length - 1) {
+              let sql1 = `update public.customer 
+              set marketing_email_sent_timestamp=now()
+              where email=ANY($1 )
+              `;
+              pool.query(sql1, [sent_emails], function (err, result, field) {
+                pool.end(() => {});
+                if (err) {
+                  console.log(err);
+                }
+              });
+            }
           })
           .catch((err) => {
             console.log(err);
           });
       }
-      let sql1 = `update public.customer 
-      set marketing_email_sent_timestamp=now()
-      where email=ANY($1 )
-      `;
-      pool.query(sql1, [sent_emails], function (err, result, field) {
-        if (err) {
-          pool.end(() => {});
-          console.log(err);
-        }
-      });
     }
   });
 };
