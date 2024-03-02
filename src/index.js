@@ -261,6 +261,7 @@ const sendMarketingEmails = () => {
   where email like '%@%'
   and marketing_email_send = true 
   and coalesce(marketing_email_sent_timestamp, '1970-01-01')< now() - interval '1 month' 
+  limit 10
   ;`;
 
   pool.query(sql, [], function (err, result, fields) {
@@ -301,6 +302,7 @@ const sendMarketingEmails = () => {
 //cron.schedule("*/5 * * * *", main);
 const main = () => {
   sendMeetingNotifications();
-  sendMarketingEmails();
+  //sendMarketingEmails();
 };
+
 main();
