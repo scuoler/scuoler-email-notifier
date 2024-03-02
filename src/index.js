@@ -191,8 +191,7 @@ const sendMeetingNotifications = () => {
         } else {
           console.log({
             updatestatus: "ok",
-            meetingId: id,
-            updateDescription: `notification flag updated for meeting ${id}`,
+            updateDescription: `notification flag updated for meetings ${meetingIdsNotified}`,
           });
         }
       });
