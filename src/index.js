@@ -302,7 +302,7 @@ const sendMarketingEmails = () => {
 //cron.schedule("*/5 * * * *", main);
 const main = () => {
   sendMeetingNotifications();
-  //sendMarketingEmails();
+  sendMarketingEmails();
 };
 
 main();
