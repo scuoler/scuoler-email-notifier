@@ -211,7 +211,7 @@ const makeMarketingEmailBody = (name) => {
   <body>
   <section style="background-color: #edf2fb;box-shadow: 0px 10px 5px grey; border-radius: 10px;border: 1px solid rgb(196, 196, 196);padding: 10px 5px 0px 15px">
   <h2>Dear ${name}, </h2>
-  <h2>Thanks for visiting <a href="https://scuoler.com/">Scuoler</a>,</h2>
+  <h2>Thanks for being a <a href="https://scuoler.com/">Scuoler</a> user.</h2>
   <h3>We hope you have great time learning/educating/building with us.</h3> 
   <h3>Kindly remember to take the following steps, as soon as possible.</h2> 
   <hr>
