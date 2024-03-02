@@ -5,6 +5,10 @@ const configuration = require("../Configuration");
 const utils = require("../utils/Utils");
 const constants = require("../Constants");
 
+//const API_URL = `http://localhost:5000/api/sendEmailGeneric`;
+
+const API_URL = `https://scuoler.com/api/sendEmailGeneric`;
+
 const sendEmailUsingAPI = async (
   api_url,
   recipients,
@@ -87,11 +91,7 @@ const makeEmailNotifyBody = (
   return html;
 };
 
-//const API_URL = `http://localhost:5000/api/sendEmailGeneric`;
-
-const API_URL = `https://scuoler.com/api/sendEmailGeneric`;
-
-const main = () => {
+const sendMeetingNotifications = () => {
   const pool = new pg.Pool({
     host: configuration.getHost(),
     user: configuration.getUserId(),
@@ -111,6 +111,7 @@ const main = () => {
       console.log(err);
       pool.end(() => {});
     } else {
+      let meetingIdsNotified = [];
       for (let i = 0; i < result.rows.length; i++) {
         let id = result.rows[i].id;
         let meetingUrl = `https://scuoler.com/chat/${id}`;
@@ -173,31 +174,134 @@ const main = () => {
 
         sendEmailUsingAPI(API_URL, recipients, emailSubject, htmlBody, true)
           .then((res) => {
-            let sql1 = `
-            update meeting set notification_sent = true where id=$1;
-            `;
             console.log(res);
-            pool.query(sql1, [id], function (err, result, fields) {
-              pool.end(() => {});
-              if (err) {
-                console.log(err);
-              } else {
-                console.log({
-                  updatestatus: "ok",
-                  meetingId: id,
-                  updateDescription: `notification flag updated for meeting ${id}`,
-                });
-              }
-            });
+            meetingIdsNotified.push(id);
           })
           .catch((err) => {
             console.log(err);
           });
       }
+      let sql1 = `
+            update meeting set notification_sent = true where id=ANY($1);
+            `;
+      pool.query(sql1, [meetingIdsNotified], function (err, result, fields) {
+        pool.end(() => {});
+        if (err) {
+          console.log(err);
+        } else {
+          console.log({
+            updatestatus: "ok",
+            meetingId: id,
+            updateDescription: `notification flag updated for meeting ${id}`,
+          });
+        }
+      });
+    }
+  });
+};
+
+const makeMarketingEmailBody = (name) => {
+  const html = `<html>
+  <body>
+  <section style="background-color: #edf2fb;box-shadow: 0px 10px 5px grey; border-radius: 10px;border: 1px solid rgb(196, 196, 196);padding: 10px 5px 0px 15px">
+  <h2>Dear ${name}, </h2>
+  <h2>Thanks for visiting <a href="https://scuoler.com/">Scuoler</a>,</h2>
+  <h3>We hope you have great time learning/educating/building with us.</h3> 
+  <h3>Kindly remember to take the following steps, as soon as possible.</h2> 
+  <hr>
+  <br/>
+  <ol>
+  <li>
+  <p style="color:#332233;font-size: 17px;font-weight: bolder">
+  Be an Instructor/Mentor<p/>
+  <img style="object-fit: contain; width: 300px; height:300px" 
+  src="https://res.cloudinary.com/dqsndcxbu/image/upload/v1708763447/employee/ffsamztkyo5wiwsibq47.jpg"/>
+  <span style="margin-left:8px; font-size: 18px; color: #223322; font-weight: normal">
+  After signing in, from the home page, click on the profile icon. 
+  Click the checkbox labelled 'Are you interested in being an Instructor/Mentor'. 
+  Provide your educational qualifications, industrial experiences, and competencies 
+  around which you want to instruct/mentor. We will match you to students/mentees. 
+  Hurray, you can start making revenue. 
+  </span> <br/>
+  </li>
+  <li>
+  <p style="color:#332233;font-size: 17px;font-weight: bolder">
+  Be a Course Creator<p/>
+  <span style="margin-left:8px; font-size: 18px; color: #223322; font-weight: normal">
+  If you have deep knowledge about a topic. Why not create a course on Scuoler platform on that topic.
+  We can help you publish and popularize your content on Google, Bing, and other search engines, 
+  on social networks such as Facebook and LinkedIn. This will help people in discovering your content faster
+  and establish yourself as an instructional designer. You can turn on the Ads option 
+  and make revenue based on number of views. If this interests you, then click on
+  <a href="https://scuoler.com/courseInsert">https://scuoler.com/courseInsert</a>
+  <span><br/>
+  </li>
+  </ol>
+  <br/>
+  <hr>
+  <h4>Thank You from <a href="https://scuoler.com">Scuoler</a> team<br/></h4>
+  <a href="https://scuoler.com">https://scuoler.com</a>
+  </section>
+  </body>
+  </html>
+ `;
+  return html;
+};
+
+const sendMarketingEmails = () => {
+  const pool = new pg.Pool({
+    host: configuration.getHost(),
+    user: configuration.getUserId(),
+    password: configuration.getPassword(),
+    database: configuration.getDatabase(),
+    port: configuration.getPort(),
+    ssl: { rejectUnauthorized: false },
+  });
+  let sql = `  
+  select distinct first_name, email from public.customer
+  where email like '%@%'
+  and marketing_email_send = true 
+  and coalesce(marketing_email_sent_timestamp, '1970-01-01')< now() - interval '1 month' 
+  ;`;
+
+  pool.query(sql, [], function (err, result, fields) {
+    if (err) {
+      console.log(err);
+      pool.end(() => {});
+    } else {
+      const sent_emails = [];
+      for (let i = 0; i < result.rows.length; i++) {
+        let name = result.rows[i].first_name;
+        let email = result.rows[i].email;
+        console.log(name, email);
+        let htmlBody = makeMarketingEmailBody(name);
+        sent_emails.push(email);
+
+        sendEmailUsingAPI(API_URL, email, "Hello From Scuoler", htmlBody, true)
+          .then((res) => {
+            sent_emails.push(email);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+      let sql1 = `update public.customer 
+      set marketing_email_sent_timestamp=now()
+      where email=ANY($1 )
+      `;
+      pool.query(sql1, [sent_emails], function (err, result, field) {
+        if (err) {
+          pool.end(() => {});
+          console.log(err);
+        }
+      });
     }
   });
 };
 
 //cron.schedule("*/5 * * * *", main);
-
+const main = () => {
+  sendMeetingNotifications();
+  sendMarketingEmails();
+};
 main();
