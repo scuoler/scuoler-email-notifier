@@ -222,6 +222,7 @@ const makeMarketingEmailBody = (name) => {
   Be an Instructor/Mentor<p/>
   <img style="object-fit: contain; width: 300px; height:300px" 
   src="https://res.cloudinary.com/dqsndcxbu/image/upload/v1708763447/employee/ffsamztkyo5wiwsibq47.jpg"/>
+  <br/>
   <span style="margin-left:8px; font-size: 18px; color: #223322; font-weight: normal">
   After signing in, from the home page, click on the profile icon. 
   Click the checkbox labelled 'Are you interested in being an Instructor/Mentor'. 
@@ -241,6 +242,18 @@ const makeMarketingEmailBody = (name) => {
   and make revenue based on number of views. If this interests you, then click on
   <a href="https://scuoler.com/courseInsert">https://scuoler.com/courseInsert</a>
   <span><br/>
+  </li>
+  <li>
+  <p style="color:#332233;font-size: 17px;font-weight: bolder">
+  Be a Learner<p/>
+  <img style="object-fit: contain; width: 300px; height:300px" 
+  src="https://res.cloudinary.com/dqsndcxbu/image/upload/v1701347380/employee/s3accumwivuajii6db6w.jpg"/>  
+  <br/>
+  <span style="margin-left:8px; font-size: 18px; color: #223322; font-weight: normal">
+  Browse and learn from 1000s of courses on our platform. Learn, teach and enlighten the world using
+  skills that you acquire from partnering with us.
+  <a href="https://scuoler.com/coursesBrowse">https://scuoler.com/coursesBrowse</a>
+  </span>
   </li>
   </ol>
   <br/>
@@ -271,6 +284,8 @@ const sendMarketingEmails = () => {
   limit 10
   ;`;
 
+  let emailPromises = [];
+
   pool.query(sql, [], function (err, result, fields) {
     if (err) {
       console.log(err);
@@ -286,6 +301,7 @@ const sendMarketingEmails = () => {
 
         sendEmailUsingAPI(API_URL, email, "Hello From Scuoler", htmlBody, true)
           .then((res) => {
+            console.log(res);
             sent_emails.push(email);
             if (i === result.rows.length - 1) {
               let sql1 = `update public.customer 
