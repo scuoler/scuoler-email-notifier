@@ -44,13 +44,31 @@ https://scuoler.com/scheduler
 
 ## Sitemaps
 
-https://scuoler.com/coursesBrowse
+https://scuoler.com/userShowSelected/shalom
 
-https://scuoler.com/problemsBrowse
+https://scuoler.com/courseShowSelected/8b92ea18-a872-4470-bccf-e711de6cf5ab
+
+https://scuoler.com/pageShowSelected/1f2f09a8-81d5-5ef7-3d1c-798438c41f98/8b92ea18-a872-4470-bccf-e711de6cf5ab/1.1.1
+
+https://scuoler.com/pageShowSelected/2f350449-d62d-4330-70c6-87eb987cf75c/8b92ea18-a872-4470-bccf-e711de6cf5ab/1.1.2
+
+https://scuoler.com/pageShowSelected/c2d100f0-4935-5426-faab-b55ede3c0dd1/8b92ea18-a872-4470-bccf-e711de6cf5ab/1.1.3
+
+https://scuoler.com/userShowSelected/edupath
 
 https://scuoler.com/mainSitemap.xml
 
 https://scuoler.com/courseSitemap.xml
+
+https://scuoler.com/quizSitemap.xml
+
+https://scuoler.com/problemSitemap.xml
+
+https://scuoler.com/moduleSitemap.xml
+
+https://scuoler.com/lessonSitemap.xml
+
+https://scuoler.com/pageSitemap.xml
 
 ## MIT License
 
