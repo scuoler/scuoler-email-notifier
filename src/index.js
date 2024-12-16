@@ -1,5 +1,6 @@
 const pg = require("pg");
 const cron = require("node-cron");
+const jwt = require("jsonwebtoken");
 
 const configuration = require("../Configuration");
 const utils = require("../utils/Utils");
@@ -206,7 +207,11 @@ const sendMeetingNotifications = async () => {
   });
 };
 
-const makeMarketingEmailBody = (name) => {
+const makeMarketingEmailBody = (name, email) => {
+  let accessToken = jwt.sign({ email }, constants.ACCESS_TOKEN_SECRET, {
+    expiresIn: "9999d",
+  });
+
   const html = `<html>
   <body>
   <section style="background-color: #edf2fb;box-shadow: 0px 10px 5px grey; border-radius: 10px;border: 1px solid rgb(196, 196, 196);padding: 10px 5px 0px 15px">
@@ -259,7 +264,8 @@ const makeMarketingEmailBody = (name) => {
   <br/>
   <hr>
   <h4>Thank You from <a href="https://scuoler.com">Scuoler</a> team<br/></h4>
-  <a href="https://scuoler.com">https://scuoler.com</a>
+  <a href="https://scuoler.com">https://scuoler.com</a>. 
+  <p><a href="https://scuoler.com/emailUnsubscribe?id=${accessToken}">Unsubscribe</a></p>
   </section>
   </body>
   </html>
@@ -296,7 +302,7 @@ const sendMarketingEmails = () => {
         let name = result.rows[i].first_name;
         let email = result.rows[i].email;
         console.log(name, email);
-        let htmlBody = makeMarketingEmailBody(name);
+        let htmlBody = makeMarketingEmailBody(name, email);
         sent_emails.push(email);
 
         sendEmailUsingAPI(API_URL, email, "Hello From Scuoler", htmlBody, true)
