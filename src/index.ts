@@ -335,7 +335,7 @@ const sendMarketingEmails = () => {
 
 //cron.schedule("*/5 * * * *", main);
 const main = (): void => {
-    //sendMeetingNotifications();
+    sendMeetingNotifications();
     sendMarketingEmails();
 };
 
